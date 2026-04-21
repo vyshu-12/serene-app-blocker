@@ -1,0 +1,107 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+
+type Search = { mode?: "signin" | "signup" };
+
+export const Route = createFileRoute("/auth")({
+  validateSearch: (s: Record<string, unknown>): Search => ({
+    mode: s.mode === "signup" ? "signup" : "signin",
+  }),
+  component: AuthPage,
+});
+
+function AuthPage() {
+  const { mode } = Route.useSearch();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const isSignup = mode === "signup";
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      if (isSignup) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: `${window.location.origin}/app` },
+        });
+        if (error) throw error;
+        toast.success("Account created! You're in.");
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        toast.success("Welcome back!");
+      }
+      navigate({ to: "/app" });
+    } catch (err: any) {
+      toast.error(err.message ?? "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-flow px-4">
+      <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-soft">
+        <Link to="/" className="block text-center font-display text-3xl text-primary">
+          Focus Flow
+        </Link>
+        <h1 className="mt-4 text-center text-2xl font-semibold">
+          {isSignup ? "Create your account" : "Welcome back"}
+        </h1>
+        <p className="mt-1 text-center text-sm text-muted-foreground">
+          {isSignup ? "Start focusing in seconds." : "Sign in to keep flowing."}
+        </p>
+        <form onSubmit={onSubmit} className="mt-6 space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              required
+              minLength={6}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+          </div>
+          <Button type="submit" disabled={loading} className="w-full rounded-full" size="lg">
+            {loading ? "Please wait…" : isSignup ? "Create account" : "Sign in"}
+          </Button>
+        </form>
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          {isSignup ? "Already have an account?" : "New here?"}{" "}
+          <Link
+            to="/auth"
+            search={{ mode: isSignup ? "signin" : "signup" }}
+            className="font-medium text-primary hover:underline"
+          >
+            {isSignup ? "Sign in" : "Create one"}
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
