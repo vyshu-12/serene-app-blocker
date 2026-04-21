@@ -418,7 +418,7 @@ function AppSessionDialog({
               <Lock className="mx-auto h-12 w-12" />
               <div className="mt-3 font-display text-2xl">App is blocked</div>
               <div className="mt-1 text-sm opacity-90">
-                {app.name} cannot be opened. Try again tomorrow.
+                You can open {app.name} tomorrow.
               </div>
             </div>
           )}
