@@ -125,7 +125,7 @@ function AppsFolder() {
       return;
     }
     if (t.used_seconds >= t.limit_seconds) {
-      toast.error(`⛔ ${app.name} is blocked — daily limit reached.`);
+      toast.error(`⛔ ${app.name} is blocked. You can open tomorrow.`);
       return;
     }
     setOpenApp(app);
@@ -357,7 +357,7 @@ function AppSessionDialog({
         // ignore
       }
     }
-    toast.error(`⛔ ${app.name} is blocked — cannot be opened.`);
+    toast.error(`⛔ ${app.name} is blocked. You can open tomorrow.`);
   }, [expired, app.name]);
 
   async function persist() {
@@ -418,7 +418,7 @@ function AppSessionDialog({
               <Lock className="mx-auto h-12 w-12" />
               <div className="mt-3 font-display text-2xl">App is blocked</div>
               <div className="mt-1 text-sm opacity-90">
-                {app.name} cannot be opened. Try again tomorrow.
+                You can open {app.name} tomorrow.
               </div>
             </div>
           )}

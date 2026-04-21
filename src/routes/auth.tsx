@@ -26,7 +26,7 @@ function AuthPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (isSignup && password !== confirmPassword) {
+    if (password !== confirmPassword) {
       toast.error("Passwords do not match");
       return;
     }
@@ -38,7 +38,14 @@ function AuthPage() {
           password,
           options: { emailRedirectTo: `${window.location.origin}/app` },
         });
-        if (error) throw error;
+        if (error) {
+          if (error.message.toLowerCase().includes("already registered")) {
+            toast.error("This email is already registered. Try signing in instead.");
+          } else {
+            toast.error(error.message);
+          }
+          return;
+        }
         toast.success("Account created! You're in.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -48,7 +55,7 @@ function AuthPage() {
         if (error) {
           if (error.message.toLowerCase().includes("invalid login")) {
             toast.error(
-              "Wrong email or password. If you haven't signed up yet, create an account first.",
+              "Wrong email or password. If you don't have an account yet, tap 'Create one' below.",
             );
           } else {
             toast.error(error.message);
@@ -116,20 +123,18 @@ function AuthPage() {
               placeholder="••••••••"
             />
           </div>
-          {isSignup && (
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                required
-                minLength={6}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="••••••••"
-              />
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirm password</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              required
+              minLength={6}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+          </div>
           <Button type="submit" disabled={loading} className="w-full rounded-full" size="lg">
             {loading ? "Please wait…" : isSignup ? "Create account" : "Sign in"}
           </Button>
