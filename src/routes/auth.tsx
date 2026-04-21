@@ -19,6 +19,7 @@ function AuthPage() {
   const { mode } = Route.useSearch();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,8 +27,12 @@ function AuthPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (password !== confirmPassword) {
+    if (isSignup && password !== confirmPassword) {
       toast.error("Passwords do not match");
+      return;
+    }
+    if (isSignup && username.trim().length < 2) {
+      toast.error("Please enter a username (at least 2 characters).");
       return;
     }
     setLoading(true);
@@ -36,7 +41,10 @@ function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/app` },
+          options: {
+            emailRedirectTo: `${window.location.origin}/app`,
+            data: { username: username.trim() },
+          },
         });
         if (error) {
           if (error.message.toLowerCase().includes("already registered")) {
@@ -46,7 +54,7 @@ function AuthPage() {
           }
           return;
         }
-        toast.success("Account created! You're in.");
+        toast.success(`Account created! Welcome, ${username.trim()}.`);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
