@@ -301,7 +301,7 @@ function AppsFolder() {
             <Button variant="outline" onClick={() => setSetupApp(null)}>
               Cancel
             </Button>
-            <Button onClick={setLimit}>Save & open</Button>
+            <Button onClick={setLimit}>Save timer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
