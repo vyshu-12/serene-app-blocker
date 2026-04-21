@@ -312,26 +312,54 @@ function AppSessionDialog({
   const [used, setUsed] = useState(timer?.used_seconds ?? 0);
   const startedAt = useRef<Date>(new Date());
   const sessionStart = useRef<number>(used);
+  const externalWindow = useRef<Window | null>(null);
+  const opened = useRef(false);
 
   const limit = timer?.limit_seconds ?? 0;
   const remaining = Math.max(0, limit - used);
+  const expired = used >= limit;
 
   useEffect(() => {
-    if (!running) return;
+    if (opened.current) return;
+    opened.current = true;
+    try {
+      externalWindow.current = window.open(app.url, `focusflow_${app.key}`);
+      if (!externalWindow.current) {
+        toast.error("Popup blocked — please allow popups for Focus Flow.");
+      } else {
+        toast.success(`Opened ${app.name}. Timer is running.`);
+      }
+    } catch {
+      // ignore
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!running || expired) return;
     const id = window.setInterval(() => {
       setUsed((u) => {
         const next = u + 1;
         onTick(next);
-        if (next >= limit) {
-          setRunning(false);
-        }
         return next;
       });
     }, 1000);
     return () => window.clearInterval(id);
-  }, [running, limit, onTick]);
+  }, [running, expired, onTick]);
 
-  // Persist on close
+  useEffect(() => {
+    if (!expired) return;
+    setRunning(false);
+    if (externalWindow.current && !externalWindow.current.closed) {
+      try {
+        externalWindow.current.close();
+      } catch {
+        // ignore
+      }
+    }
+    toast.error(`⛔ ${app.name} is blocked — cannot be opened.`);
+  }, [expired, app.name]);
+
   async function persist() {
     if (!user) return;
     const sessionDuration = used - sessionStart.current;
@@ -353,18 +381,21 @@ function AppSessionDialog({
   }
 
   async function handleClose() {
+    if (externalWindow.current && !externalWindow.current.closed) {
+      try {
+        externalWindow.current.close();
+      } catch {
+        // ignore
+      }
+    }
     await persist();
     onClose();
   }
 
-  const expired = used >= limit;
-
   return (
     <Dialog open onOpenChange={(o) => !o && handleClose()}>
       <DialogContent className="overflow-hidden p-0 sm:max-w-md">
-        <div
-          className={`bg-gradient-to-br ${app.color} p-8 text-center text-white`}
-        >
+        <div className={`bg-gradient-to-br ${app.color} p-8 text-center text-white`}>
           <div className="text-6xl">{app.emoji}</div>
           <div className="mt-2 font-display text-3xl">{app.name}</div>
           {!expired ? (
@@ -372,20 +403,22 @@ function AppSessionDialog({
               <div className="mt-6 font-display text-7xl tabular-nums">
                 {fmtSeconds(remaining)}
               </div>
-              <div className="text-xs opacity-85">remaining today</div>
+              <div className="text-xs opacity-85">
+                remaining — {app.name} is open in a new tab
+              </div>
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/25">
                 <div
                   className="h-full bg-white transition-all"
-                  style={{ width: `${(used / limit) * 100}%` }}
+                  style={{ width: `${Math.min(100, (used / limit) * 100)}%` }}
                 />
               </div>
             </>
           ) : (
             <div className="mt-6">
               <Lock className="mx-auto h-12 w-12" />
-              <div className="mt-3 font-display text-2xl">Time's up!</div>
-              <div className="text-sm opacity-90">
-                {app.name} is blocked until tomorrow.
+              <div className="mt-3 font-display text-2xl">App is blocked</div>
+              <div className="mt-1 text-sm opacity-90">
+                {app.name} cannot be opened. Try again tomorrow.
               </div>
             </div>
           )}
