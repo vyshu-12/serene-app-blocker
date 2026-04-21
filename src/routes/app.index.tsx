@@ -158,7 +158,7 @@ function AppsFolder() {
       const others = prev.filter((p) => p.app_key !== setupApp.key);
       return [...others, data as TimerRow];
     });
-    toast.success(`Timer set: ${setupMinutes} min for ${setupApp.name}`);
+    toast.success(`Timer set: ${setupMinutes} min for ${setupApp.name}. Tap Open when ready.`);
     setSetupApp(null);
   }
 
@@ -200,33 +200,62 @@ function AppsFolder() {
           const blockedNight = isBlockedByNight(app);
           const blockedTimer = isBlockedByTimer(app);
           const blocked = blockedNight || blockedTimer;
+          const hasTimer = !!t;
           return (
             <div key={app.key} className="group relative">
-              <button
-                onClick={() => handleAppClick(app)}
-                className={`relative flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-3xl bg-gradient-to-br ${app.color} p-3 text-white shadow-soft transition-transform ${
-                  blocked ? "opacity-60" : "hover:scale-[1.03]"
+              <div
+                className={`relative flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-3xl bg-gradient-to-br ${app.color} p-3 text-white shadow-soft ${
+                  blocked ? "opacity-60" : ""
                 }`}
               >
                 <div className="text-4xl">{app.emoji}</div>
                 <div className="text-xs font-semibold">{app.name}</div>
-                {blocked && (
-                  <div className="absolute inset-0 flex items-center justify-center rounded-3xl bg-black/45 backdrop-blur-sm">
-                    <Lock className="h-7 w-7" />
+                {hasTimer && !blocked && (
+                  <div className="text-[10px] opacity-90 tabular-nums">
+                    {fmtSeconds(Math.max(0, t.limit_seconds - t.used_seconds))} left
                   </div>
                 )}
-              </button>
-              <div className="mt-2 text-center text-[11px] text-muted-foreground">
-                {t ? (
-                  <span>
-                    {fmtSeconds(t.used_seconds)} / {fmtSeconds(t.limit_seconds)}
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1">
-                    <Timer className="h-3 w-3" /> Tap to set timer
-                  </span>
+                {blocked && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center rounded-3xl bg-black/55 backdrop-blur-sm text-center px-2">
+                    <Lock className="h-6 w-6" />
+                    <div className="mt-1 text-[10px] font-semibold leading-tight">
+                      {blockedNight ? "Night Lock" : "Open tomorrow"}
+                    </div>
+                  </div>
                 )}
               </div>
+
+              <div className="mt-2 flex gap-1.5">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 h-8 rounded-full text-[11px] px-2"
+                  onClick={() => {
+                    setSetupMinutes(t ? Math.max(1, Math.round(t.limit_seconds / 60)) : 2);
+                    setSetupApp(app);
+                  }}
+                  disabled={blockedNight}
+                >
+                  <Timer className="h-3 w-3" />
+                  <span className="ml-1">{hasTimer ? "Edit" : "Timer"}</span>
+                </Button>
+                <Button
+                  size="sm"
+                  className="flex-1 h-8 rounded-full text-[11px] px-2"
+                  onClick={() => handleAppClick(app)}
+                  disabled={blocked}
+                >
+                  <Play className="h-3 w-3" />
+                  <span className="ml-1">Open</span>
+                </Button>
+              </div>
+
+              {t && (
+                <div className="mt-1 text-center text-[10px] text-muted-foreground tabular-nums">
+                  {fmtSeconds(t.used_seconds)} / {fmtSeconds(t.limit_seconds)}
+                </div>
+              )}
+
               {t && (
                 <button
                   onClick={() => removeTimer(app)}
@@ -272,7 +301,7 @@ function AppsFolder() {
             <Button variant="outline" onClick={() => setSetupApp(null)}>
               Cancel
             </Button>
-            <Button onClick={setLimit}>Save & open</Button>
+            <Button onClick={setLimit}>Save timer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
