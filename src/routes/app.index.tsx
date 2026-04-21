@@ -357,7 +357,7 @@ function AppSessionDialog({
         // ignore
       }
     }
-    toast.error(`⛔ ${app.name} is blocked — cannot be opened.`);
+    toast.error(`⛔ ${app.name} is blocked. You can open tomorrow.`);
   }, [expired, app.name]);
 
   async function persist() {
