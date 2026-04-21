@@ -158,7 +158,7 @@ function AppsFolder() {
       const others = prev.filter((p) => p.app_key !== setupApp.key);
       return [...others, data as TimerRow];
     });
-    toast.success(`Timer set: ${setupMinutes} min for ${setupApp.name}`);
+    toast.success(`Timer set: ${setupMinutes} min for ${setupApp.name}. Tap Open when ready.`);
     setSetupApp(null);
   }
 
