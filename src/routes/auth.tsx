@@ -19,6 +19,7 @@ function AuthPage() {
   const { mode } = Route.useSearch();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,8 +27,12 @@ function AuthPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (password !== confirmPassword) {
+    if (isSignup && password !== confirmPassword) {
       toast.error("Passwords do not match");
+      return;
+    }
+    if (isSignup && username.trim().length < 2) {
+      toast.error("Please enter a username (at least 2 characters).");
       return;
     }
     setLoading(true);
@@ -36,7 +41,10 @@ function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/app` },
+          options: {
+            emailRedirectTo: `${window.location.origin}/app`,
+            data: { username: username.trim() },
+          },
         });
         if (error) {
           if (error.message.toLowerCase().includes("already registered")) {
@@ -46,7 +54,7 @@ function AuthPage() {
           }
           return;
         }
-        toast.success("Account created! You're in.");
+        toast.success(`Account created! Welcome, ${username.trim()}.`);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -100,6 +108,20 @@ function AuthPage() {
           {isSignup ? "Start focusing in seconds." : "Sign in to keep flowing."}
         </p>
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
+          {isSignup && (
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                type="text"
+                required
+                minLength={2}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="your name"
+              />
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -123,18 +145,20 @@ function AuthPage() {
               placeholder="••••••••"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              required
-              minLength={6}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="••••••••"
-            />
-          </div>
+          {isSignup && (
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                required
+                minLength={6}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+              />
+            </div>
+          )}
           <Button type="submit" disabled={loading} className="w-full rounded-full" size="lg">
             {loading ? "Please wait…" : isSignup ? "Create account" : "Sign in"}
           </Button>
