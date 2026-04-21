@@ -14,7 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      app_timers: {
+        Row: {
+          app_key: string
+          app_name: string
+          created_at: string
+          id: string
+          limit_seconds: number
+          reset_date: string
+          updated_at: string
+          used_seconds: number
+          user_id: string
+        }
+        Insert: {
+          app_key: string
+          app_name: string
+          created_at?: string
+          id?: string
+          limit_seconds?: number
+          reset_date?: string
+          updated_at?: string
+          used_seconds?: number
+          user_id: string
+        }
+        Update: {
+          app_key?: string
+          app_name?: string
+          created_at?: string
+          id?: string
+          limit_seconds?: number
+          reset_date?: string
+          updated_at?: string
+          used_seconds?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      night_lock_settings: {
+        Row: {
+          allowed_during_lock: Json
+          distracting_apps: Json
+          enabled: boolean
+          end_hour: number
+          mute_notifications: boolean
+          start_hour: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allowed_during_lock?: Json
+          distracting_apps?: Json
+          enabled?: boolean
+          end_hour?: number
+          mute_notifications?: boolean
+          start_hour?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allowed_during_lock?: Json
+          distracting_apps?: Json
+          enabled?: boolean
+          end_hour?: number
+          mute_notifications?: boolean
+          start_hour?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      usage_sessions: {
+        Row: {
+          app_key: string
+          app_name: string
+          duration_seconds: number
+          ended_at: string
+          id: string
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          app_key: string
+          app_name: string
+          duration_seconds: number
+          ended_at?: string
+          id?: string
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          app_key?: string
+          app_name?: string
+          duration_seconds?: number
+          ended_at?: string
+          id?: string
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
