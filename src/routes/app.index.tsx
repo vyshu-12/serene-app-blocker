@@ -371,13 +371,13 @@ function AppSessionDialog({
     if (!running || expired) return;
     const id = window.setInterval(() => {
       setUsed((u) => {
-        const next = u + 1;
+        const next = Math.min(limit, u + 1);
         onTick(next);
         return next;
       });
     }, 1000);
     return () => window.clearInterval(id);
-  }, [running, expired, onTick]);
+  }, [running, expired, onTick, limit]);
 
   useEffect(() => {
     if (!expired) return;
@@ -389,7 +389,9 @@ function AppSessionDialog({
         // ignore
       }
     }
-    toast.error(`⛔ ${app.name} is blocked. You can open tomorrow.`);
+    toast.error(`⛔ Timer completed. ${app.name} is blocked. Come tomorrow.`);
+    void persist();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expired, app.name]);
 
   async function persist() {
