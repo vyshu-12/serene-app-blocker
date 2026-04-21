@@ -125,7 +125,7 @@ function AppsFolder() {
       return;
     }
     if (t.used_seconds >= t.limit_seconds) {
-      toast.error(`⛔ ${app.name} is blocked — daily limit reached.`);
+      toast.error(`⛔ ${app.name} is blocked. You can open tomorrow.`);
       return;
     }
     setOpenApp(app);
