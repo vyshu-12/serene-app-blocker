@@ -217,10 +217,13 @@ function AppsFolder() {
                 )}
                 {blocked && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center rounded-3xl bg-black/55 backdrop-blur-sm text-center px-2">
-                    <Lock className="h-6 w-6" />
-                    <div className="mt-1 text-[10px] font-semibold leading-tight">
-                      {blockedNight ? "Night Lock" : "Open tomorrow"}
+                    <Lock className="h-7 w-7" />
+                    <div className="mt-1 text-[11px] font-semibold leading-tight">
+                      {blockedNight ? "Night Lock" : "Timer completed"}
                     </div>
+                    {blockedTimer && !blockedNight && (
+                      <div className="text-[10px] opacity-90 leading-tight">Come tomorrow</div>
+                    )}
                   </div>
                 )}
               </div>
@@ -234,7 +237,7 @@ function AppsFolder() {
                     setSetupMinutes(t ? Math.max(1, Math.round(t.limit_seconds / 60)) : 2);
                     setSetupApp(app);
                   }}
-                  disabled={blockedNight}
+                  disabled={blockedNight || blockedTimer}
                 >
                   <Timer className="h-3 w-3" />
                   <span className="ml-1">{hasTimer ? "Edit" : "Timer"}</span>
@@ -246,7 +249,7 @@ function AppsFolder() {
                   disabled={blocked}
                 >
                   <Play className="h-3 w-3" />
-                  <span className="ml-1">Open</span>
+                  <span className="ml-1">{blockedTimer ? "Blocked" : "Open"}</span>
                 </Button>
               </div>
 
@@ -256,7 +259,7 @@ function AppsFolder() {
                 </div>
               )}
 
-              {t && (
+              {t && !blockedTimer && (
                 <button
                   onClick={() => removeTimer(app)}
                   title="Remove timer"
