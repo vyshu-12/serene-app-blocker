@@ -133,6 +133,15 @@ function AuthPage() {
           <Button type="submit" disabled={loading} className="w-full rounded-full" size="lg">
             {loading ? "Please wait…" : isSignup ? "Create account" : "Sign in"}
           </Button>
+          {!isSignup && (
+            <button
+              type="button"
+              onClick={onForgotPassword}
+              className="block w-full text-center text-sm text-primary hover:underline"
+            >
+              Forgot password?
+            </button>
+          )}
         </form>
         <p className="mt-6 text-center text-sm text-muted-foreground">
           {isSignup ? "Already have an account?" : "New here?"}{" "}
