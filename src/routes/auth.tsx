@@ -108,6 +108,20 @@ function AuthPage() {
           {isSignup ? "Start focusing in seconds." : "Sign in to keep flowing."}
         </p>
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
+          {isSignup && (
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                type="text"
+                required
+                minLength={2}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="your name"
+              />
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -131,18 +145,20 @@ function AuthPage() {
               placeholder="••••••••"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              required
-              minLength={6}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="••••••••"
-            />
-          </div>
+          {isSignup && (
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                required
+                minLength={6}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+              />
+            </div>
+          )}
           <Button type="submit" disabled={loading} className="w-full rounded-full" size="lg">
             {loading ? "Please wait…" : isSignup ? "Create account" : "Sign in"}
           </Button>
