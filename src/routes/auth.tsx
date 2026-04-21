@@ -45,7 +45,16 @@ function AuthPage() {
           email,
           password,
         });
-        if (error) throw error;
+        if (error) {
+          if (error.message.toLowerCase().includes("invalid login")) {
+            toast.error(
+              "Wrong email or password. If you haven't signed up yet, create an account first.",
+            );
+          } else {
+            toast.error(error.message);
+          }
+          return;
+        }
         toast.success("Welcome back!");
       }
       navigate({ to: "/app" });
@@ -53,6 +62,21 @@ function AuthPage() {
       toast.error(err.message ?? "Something went wrong");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function onForgotPassword() {
+    if (!email) {
+      toast.error("Enter your email above first, then tap 'Forgot password'.");
+      return;
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth?mode=signin`,
+    });
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Password reset email sent. Check your inbox.");
     }
   }
 
