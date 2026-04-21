@@ -123,20 +123,18 @@ function AuthPage() {
               placeholder="••••••••"
             />
           </div>
-          {isSignup && (
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                required
-                minLength={6}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="••••••••"
-              />
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirm password</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              required
+              minLength={6}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+          </div>
           <Button type="submit" disabled={loading} className="w-full rounded-full" size="lg">
             {loading ? "Please wait…" : isSignup ? "Create account" : "Sign in"}
           </Button>
